@@ -1,0 +1,15 @@
+#Import CSV
+$path= split-path -Parent $MyInvocation.MyCommand.Definition
+$newpath = $path + ".\Hosts.csv"
+$csv =@()
+$CSV = Import-CSV -Path $newpath
+
+#Function
+
+foreach ($line in $csv) 
+{
+
+$vmhost = $line.host
+Get-Inventory -Name $vmhost | Scan-Inventory -UpdateType HostPatch -runasync
+   
+}
