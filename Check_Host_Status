@@ -1,0 +1,25 @@
+#Import CSV
+
+$path= split-path -Parent $MyInvocation.MyCommand.Definition
+$newpath = $path + ".\Hosts.csv"
+$csv =@()
+$CSV = Import-CSV -Path $newpath
+
+
+foreach ($line in $csv) 
+{
+
+$vmhost = $line.host
+$checkstatus = Get-VMHost $vmhost
+
+if ( $checkstatus.connectionstate -eq "Maintenance" )
+   {
+     Write-Host " $($vmhost) is in Maintenance Mode" -ForegroundColor Green
+   }
+
+else 
+   { 
+     Write-Host "$($vmhost) is not in Maintenance Mode " -ForegroundColor Yellow
+   }
+   
+}
