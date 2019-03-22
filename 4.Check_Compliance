@@ -1,0 +1,21 @@
+#Import CSV
+$path= split-path -Parent $MyInvocation.MyCommand.Definition
+$newpath = $path + ".\Hosts.csv"
+$csv =@()
+$CSV = Import-CSV -Path $newpath
+
+#Function
+
+foreach ($line in $csv) 
+{
+
+$vmhost = $line.host
+$baseline = Get-baseline -targettype Host 
+
+
+Get-Compliance -Entity $vmhost -Baseline $Baseline
+
+Write-Host "**********************************************************************************" 
+
+
+}
