@@ -1,27 +1,31 @@
 #Import CSV
-
 $path= split-path -Parent $MyInvocation.MyCommand.Definition
 $newpath = $path + ".\Hosts.csv"
 $csv =@()
 $CSV = Import-CSV -Path $newpath
 
+#Function
 
 foreach ($line in $csv) 
 {
 
 $vmhost = $line.host
-$checkstatus = Get-VMHost $vmhost
+$vcenterserver = $line.vcenterserver
+$baseline = Get-baseline -server $vcenterserver -targettype Host -baselinetype patch
 
-if ( $checkstatus.connectionstate -eq "Maintenance" )
+#Write-Host " Updating $($vmhost)...."
+
+
+$checkcompliace = Get-Compliance -Entity $vmhost -server $vcenterserver -Baseline $baseline 
+
+if ( $checkcompliace.status -eq 'NotCompliant' ) 
+
    {
-     Write-Host "$($vmhost) is already in Maintenance Mode" -ForegroundColor Green
+    Write-host " Remediating $($vmhost)...." -ForegroundColor Yellow
+    Update-Entity -Entity $vmhost -server $vcenterserver -Baseline $baseline -Confirm:$False -runasync
    }
-
 else 
-   { 
-      Write-Host "$($vmhost) Entering Maintenane Mode...." -ForegroundColor Yellow
-      Set-VMHost -VMHost $vmhost -State "Maintenance" -runasync
-      
-   }
-   
+    { Write-Host " $($vmhost) is compliant " -ForegroundColor Green
+    }
+
 }
