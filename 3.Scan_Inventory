@@ -11,5 +11,6 @@ foreach ($line in $csv)
 
 $vmhost = $line.host
 Get-Inventory -Name $vmhost | Scan-Inventory -UpdateType HostPatch -runasync
-   
+
+  
 }
