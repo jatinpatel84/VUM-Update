@@ -1,0 +1,26 @@
+#Import CSV
+$path= split-path -Parent $MyInvocation.MyCommand.Definition
+$newpath = $path + ".\Hosts.csv"
+$csv =@()
+$CSV = Import-CSV -Path $newpath
+  
+foreach ($line in $csv) 
+{  
+
+    $vmhost = $line.host
+  
+    #this test will send 2 echo requests to vmhost and quiet parameter returns true/flase value
+    if (test-Connection -ComputerName $vmhost -Count 2 -Quiet ) 
+    
+
+    {   
+      Write-Host "$VMhost is Pinging "  -ForegroundColor Green
+          
+    } 
+    
+    else  
+    {
+        write-Host "$vmhost not pinging"  -ForegroundColor Yellow
+    }      
+          
+} 
