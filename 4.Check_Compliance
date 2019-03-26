@@ -10,10 +10,11 @@ foreach ($line in $csv)
 {
 
 $vmhost = $line.host
+$vcenterserver = $line.vcenterserver
 $baseline = Get-baseline -targettype Host 
 
 
-Get-Compliance -Entity $vmhost -Baseline $Baseline
+Get-Compliance -Entity $vmhost -server $vcenterserver -Baseline $Baseline
 
 Write-Host "**********************************************************************************" 
 
