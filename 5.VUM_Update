@@ -10,17 +10,19 @@ foreach ($line in $csv)
 {
 
 $vmhost = $line.host
-$baseline = Get-baseline -targettype Host -baselinetype patch 
+$vcenterserver = $line.vcenterserver
+$baseline = Get-baseline -server $vcenterserver -targettype Host -baselinetype patch
+
 #Write-Host " Updating $($vmhost)...."
 
 
-$checkcompliace = Get-Compliance -Entity $vmhost -Baseline $Baseline 
+$checkcompliace = Get-Compliance -Entity $vmhost -server $vcenterserver -Baseline $baseline 
 
 if ( $checkcompliace.status -eq 'NotCompliant' ) 
 
    {
     Write-host " Remediating $($vmhost)...." -ForegroundColor Yellow
-    #Update-Entity -Baseline $baseline -Entity $vmhost -Confirm:$False -runasync
+    Update-Entity -Entity $vmhost -server $vcenterserver -Baseline $baseline -Confirm:$False -runasync
    }
 else 
     { Write-Host " $($vmhost) is compliant " -ForegroundColor Green
