@@ -1,0 +1,43 @@
+#Import CSV
+$path= split-path -Parent $MyInvocation.MyCommand.Definition
+$newpath = $path + ".\Hosts.csv"
+$csv =@()
+$CSV = Import-CSV -Path $newpath
+
+#Function
+
+foreach ($line in $csv) 
+{
+    $vmhost = $line.host
+    Write-Host "Removing $($vmhost) from Maintenance Mode" -ForegroundColor Yellow
+
+    try 
+    {
+          # Change Host state to Active
+          $changestate =   Set-VMHost -vmhost $vmhost -State "connected" -confirm:$flase -RunAsync -ea stop
+          Start-sleep -Seconds 02
+          #Wait for Task to Complete
+          while ($changestate.State -ne 'Success')
+            {
+                Write-Progress -Activity " Waiting for $($vmhost) to move to Active State"
+                Start-sleep -Seconds 10
+               # $changestate = Get-Task $changestate.Id
+            }
+
+          if ( $changestate.State -eq 'Success' )
+
+            { 
+                Write-Host " $($vmhost) is now in Active State" -ForegroundColor Green
+            }
+
+    }
+    Catch 
+
+       {
+            $ErrorMessage = $_.Exception.Message
+            Write-Warning $ErrorMessage
+            Read-Host -Prompt 'Press enter to continue to next VMHost or CTRL + C to exit'
+            Continue
+        }
+    
+}
